@@ -31,8 +31,7 @@ runs:
         ref: v3
         path: ./.github/.tmp/cache-always/actions/cache
 
-    - name: Make actions/cache@v3 run always, not only when job succeeds
-      # Patch `action.yml` manifest of `actions/cache@v3` to make it cache data even when the job fails.
+    - name: Patch actions/cache@v3 to make it cache data also when the job fails
       run: |
         sed -i -e 's/post-if:.*$/post-if: "success() || failure()"/' ./.github/.tmp/cache-always/actions/cache/action.yml
       shell: bash
