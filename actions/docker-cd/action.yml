@@ -17,6 +17,9 @@ inputs:
   dockerfile:
     description: "Dockerfile path"
     required: true
+  context:
+    description: "Build context path"
+    required: false
   build-args:
     description: "Docker build arguments"
   service_webhook_url:
@@ -37,7 +40,7 @@ runs:
       with:
         push: true
         tags: ${{ inputs.registry_url }}/${{ inputs.image_tag }}
-        context: .
+        context: ${{ inputs.context || '.' }}
         file: ${{ inputs.dockerfile }}
         build-args: ${{ inputs.build-args }}
 
