@@ -35,14 +35,27 @@ runs:
         username: ${{ inputs.registry_username }}
         password: ${{ inputs.registry_token }}
 
-    - name: Build and push to registry
-      uses: docker/build-push-action@v3
+    - name: Setup Docker context
+      run: docker context create builders
+      shell: bash
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
       with:
-        push: true
+        endpoint: builders
+
+    - name: Build Docker image
+      uses: docker/build-push-action@v4
+      with:
+        load: true
         tags: ${{ inputs.registry_url }}/${{ inputs.image_tag }}
         context: ${{ inputs.context || '.' }}
         file: ${{ inputs.dockerfile }}
         build-args: ${{ inputs.build-args }}
+
+    - name: Push to registry
+      run: docker push ${{ inputs.registry_url }}/${{ inputs.image_tag }}
+      shell: bash
 
     - name: Invoke deployment hook
       if: inputs.service_webhook_url
