@@ -48,7 +48,7 @@ runs:
       uses: actions/cache@v4
       with:
         path: /tmp/.buildx-cache
-        key: ${{ runner.os }}-buildx-cache
+        key: buildx-cache-${{ runner.os }}
 
     - name: Build Docker image
       uses: docker/build-push-action@v5
