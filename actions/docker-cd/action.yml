@@ -67,7 +67,8 @@ runs:
     - name: Move cache
       run: |
         rm -rf /tmp/.buildx-cache
-        mv /tmp/.buildx-cache-new /tmp/.buildx-cache  
+        mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+      shell: bash
 
     - name: Push to registry
       run: docker push ${{ inputs.registry_url }}/${{ inputs.image_tag }}
