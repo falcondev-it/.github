@@ -1,32 +1,35 @@
-name: "Docker CD"
-description: "Docker build, push to registry and invoke Portainer service webhook."
+name: 'Docker CD'
+description: 'Docker build, push to registry and invoke Portainer service webhook.'
 
 inputs:
   image_tag:
     description: "Docker image tag (e.g. 'falcondev/falcon-portal-api')"
     required: true
   registry_url:
-    description: "Docker registry URL"
+    description: 'Docker registry URL'
     required: true
   registry_username:
-    description: "Docker registry username"
+    description: 'Docker registry username'
     required: true
   registry_token:
-    description: "Docker registry token"
+    description: 'Docker registry token'
     required: true
   dockerfile:
-    description: "Dockerfile path"
+    description: 'Dockerfile path'
     required: true
   context:
-    description: "Build context path"
+    description: 'Build context path'
+    required: false
+  version:
+    description: 'Version of this release. Used for tagging the image. (eg. v1.4.2)'
     required: false
   build-args:
-    description: "Docker build arguments"
+    description: 'Docker build arguments'
   service_webhook_url:
-    description: "Portainer service webhook URL"
+    description: 'Portainer service webhook URL'
 
 runs:
-  using: "composite"
+  using: 'composite'
   steps:
     - name: Login to registry
       uses: docker/login-action@v3
@@ -50,17 +53,25 @@ runs:
         path: /tmp/.buildx-cache
         key: buildx-cache-${{ runner.os }}
 
+    - name: Extract metadata (tags, labels) for Docker
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ inputs.registry_url }}/${{ inputs.image_tag }}
+        tags: ${{ inputs.version && format('latest\ntype=semver,pattern={{version}},value={0}\ntype=semver,pattern={{major}}.{{minor}},value={0}\ntype=semver,pattern={{major}},value={0}', inputs.version) || 'latest' }}
+
     - name: Build Docker image
       uses: docker/build-push-action@v5
       with:
         load: true
-        tags: ${{ inputs.registry_url }}/${{ inputs.image_tag }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
         context: ${{ inputs.context || '.' }}
         file: ${{ inputs.dockerfile }}
         build-args: ${{ inputs.build-args }}
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-        
+
     # Temp fix
     # https://github.com/docker/build-push-action/issues/252
     # https://github.com/moby/buildkit/issues/1896
