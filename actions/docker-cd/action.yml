@@ -64,7 +64,7 @@ runs:
       uses: docker/build-push-action@v5
       with:
         load: true
-        tags: ${{ steps.meta.outputs.tags }}
+        tags: ${{ inputs.version && steps.meta.outputs.tags || format('{0}/{1}', inputs.registry_url, inputs.image_tag) }}
         labels: ${{ steps.meta.outputs.labels }}
         context: ${{ inputs.context || '.' }}
         file: ${{ inputs.dockerfile }}
