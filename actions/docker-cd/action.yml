@@ -64,7 +64,7 @@ runs:
       uses: docker/build-push-action@v5
       with:
         load: true
-        tags: ${{ inputs.version && steps.meta.outputs.tags || format('{0}/{1}', inputs.registry_url, inputs.image_tag) }}
+        tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         context: ${{ inputs.context || '.' }}
         file: ${{ inputs.dockerfile }}
@@ -82,7 +82,7 @@ runs:
       shell: bash
 
     - name: Push to registry
-      run: docker push ${{ inputs.registry_url }}/${{ inputs.image_tag }}
+      run: echo '${{ steps.meta.outputs.tags }}' | xargs docker push
       shell: bash
 
     - name: Invoke deployment hook
