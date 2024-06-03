@@ -19,14 +19,14 @@ inputs:
     required: true
   context:
     description: 'Build context path'
-    required: false
   version:
     description: 'Version of this release. Used for tagging the image. (eg. v1.4.2)'
-    required: false
   build-args:
     description: 'Docker build arguments'
   service_webhook_url:
     description: 'Portainer service webhook URL'
+  healthcheck_url:
+    description: 'Post-deployment healthcheck URL'
 
 runs:
   using: 'composite'
@@ -92,4 +92,12 @@ runs:
     - name: Invoke deployment hook
       if: inputs.service_webhook_url
       run: curl --silent --show-error --dump-header - --fail -X POST ${{ inputs.service_webhook_url }}
+      shell: bash
+
+    - name: Healthcheck
+      if: inputs.healthcheck_url
+      run: |
+        sleep 30
+        # 8 retries exponentially backing off (finishing after 4:15 min)
+        curl --silent --show-error --dump-header - --fail --retry 8 --retry-all-errors -o /dev/null '${{ inputs.healthcheck_url }}'
       shell: bash
