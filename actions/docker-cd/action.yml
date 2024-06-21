@@ -28,7 +28,7 @@ inputs:
   healthcheck_url:
     description: 'Post-deployment healthcheck URL'
   image_tag_override:
-    description: 'Allow for overriding the image tag
+    description: 'Allow for overriding the image tag'
 
 runs:
   using: 'composite'
