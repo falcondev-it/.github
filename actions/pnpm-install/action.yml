@@ -1,4 +1,11 @@
 name: pnpm Install
+description: Checkout the repository, setup Node.js and install dependencies using pnpm
+
+inputs:
+  install-args:
+    description: 'Arguments to pass to pnpm install'
+    required: false
+    default: ''
 
 runs:
   using: composite
@@ -16,5 +23,5 @@ runs:
         node-version: 20.x
         cache: pnpm
 
-    - run: pnpm install --frozen-lockfile
+    - run: pnpm install --frozen-lockfile ${{ inputs.install-args }}
       shell: bash
