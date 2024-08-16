@@ -29,6 +29,9 @@ inputs:
     description: 'Post-deployment healthcheck URL'
   image_tag:
     description: 'Allow to manually set the image tag instead of using the version.'
+  skip_setup:
+    description: 'Skip Docker setup'
+    default: 'false'
 
 runs:
   using: 'composite'
@@ -41,6 +44,7 @@ runs:
         password: ${{ inputs.registry_token }}
 
     - name: Setup Docker context
+      if: inputs.skip_setup == 'false'
       run: docker context create builders
       shell: bash
 
