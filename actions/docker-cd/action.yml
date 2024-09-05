@@ -53,14 +53,6 @@ runs:
       with:
         endpoint: builders
 
-    - name: Cache Docker Buildx cache
-      uses: actions/cache@v4
-      with:
-        path: /tmp/.buildx-cache
-        key: buildx-cache-${{ runner.os }}-${{ inputs.image_name }}-${{ github.sha }}
-        restore-keys: |
-          buildx-cache-${{ runner.os }}-${{ inputs.image_name }}-
-
     - name: Extract metadata (tags, labels) for Docker
       id: meta
       uses: docker/metadata-action@v5
@@ -77,19 +69,8 @@ runs:
         context: ${{ inputs.context || '.' }}
         file: ${{ inputs.dockerfile }}
         build-args: ${{ inputs.build-args }}
-        cache-from: type=local,src=/tmp/.buildx-cache
-        cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-        # cache-from: type=gha,scope=${{ inputs.image_name }}
-        # cache-to: type=gha,scope=${{ inputs.image_name }},mode=max
-
-    # Temp fix
-    # https://github.com/docker/build-push-action/issues/252
-    # https://github.com/moby/buildkit/issues/1896
-    - name: Move cache
-      run: |
-        rm -rf /tmp/.buildx-cache
-        mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-      shell: bash
+        cache-from: type=gha,scope=${{ inputs.image_name }}
+        cache-to: type=gha,scope=${{ inputs.image_name }},mode=max
 
     - name: Push to registry
       run: echo '${{ steps.meta.outputs.tags }}' | xargs docker push
