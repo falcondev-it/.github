@@ -43,15 +43,8 @@ runs:
         username: ${{ inputs.registry_username }}
         password: ${{ inputs.registry_token }}
 
-    - name: Setup Docker context
-      if: inputs.skip_setup == 'false'
-      run: docker context create builders
-      shell: bash
-
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
-      with:
-        endpoint: builders
 
     - name: Extract metadata (tags, labels) for Docker
       id: meta
@@ -60,10 +53,10 @@ runs:
         images: ${{ inputs.registry_url }}/${{ inputs.image_name }}
         tags: ${{ inputs.image_tag || (inputs.version && format('latest\ntype=semver,pattern={{version}},value={0}\ntype=semver,pattern={{major}}.{{minor}},value={0}\ntype=semver,pattern={{major}},value={0}', inputs.version) || 'latest') }}
 
-    - name: Build Docker image
-      uses: docker/build-push-action@v5
+    - name: Build & Push Docker image
+      uses: docker/build-push-action@v6
       with:
-        load: true
+        push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         context: ${{ inputs.context || '.' }}
@@ -71,10 +64,6 @@ runs:
         build-args: ${{ inputs.build-args }}
         cache-from: type=gha,scope=${{ inputs.image_name }}
         cache-to: type=gha,scope=${{ inputs.image_name }},mode=max
-
-    - name: Push to registry
-      run: echo '${{ steps.meta.outputs.tags }}' | xargs docker push
-      shell: bash
 
     - name: Invoke deployment hook
       if: inputs.service_webhook_url
