@@ -63,7 +63,7 @@ runs:
         file: ${{ inputs.dockerfile }}
         build-args: ${{ inputs.build-args }}
         cache-from: type=gha,scope=${{ inputs.image_name }}
-        cache-to: type=gha,scope=${{ inputs.image_name }},mode=max
+        cache-to: type=gha,scope=${{ inputs.image_name }},mode=min
 
     - name: Invoke deployment hook
       if: inputs.service_webhook_url
