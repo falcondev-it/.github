@@ -50,7 +50,6 @@ runs:
           [registry."docker.io"]
             mirrors = ["http://registry-docker-registry.default.svc.cluster.local:5000"]
             http = true
-            insecure = true
 
     - name: Extract metadata (tags, labels) for Docker
       id: meta
