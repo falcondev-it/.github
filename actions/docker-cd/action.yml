@@ -48,7 +48,7 @@ runs:
       with:
         buildkitd-config-inline: |
           [registry."docker.io"]
-            mirrors = ["registry-docker-registry.default.svc.cluster.local:5000"]
+            mirrors = ["http://registry-docker-registry.default.svc.cluster.local:5000"]
             http = true
             insecure = true
 
