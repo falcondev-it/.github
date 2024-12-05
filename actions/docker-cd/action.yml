@@ -48,8 +48,7 @@ runs:
       with:
         buildkitd-config-inline: |
           [registry."docker.io"]
-            mirrors = ["http://registry-docker-registry.default.svc.cluster.local:5000"]
-            http = true
+            mirrors = ["https://harbor.falcondev.de"]
 
     - name: Extract metadata (tags, labels) for Docker
       id: meta
