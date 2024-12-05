@@ -45,6 +45,11 @@ runs:
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
+      with:
+        buildkitd-config-inline: |
+          [registry."docker.io"]
+            mirrors = ["http://registry-docker-registry.default.svc.cluster.local:5000"]
+            http = true
 
     - name: Extract metadata (tags, labels) for Docker
       id: meta
