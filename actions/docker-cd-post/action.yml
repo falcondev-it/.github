@@ -1,0 +1,24 @@
+name: 'Docker CD Post'
+description: 'Handle post-push tasks like invoking restart service webhook and healthcheck.'
+
+inputs:
+  service_webhook_url:
+    description: 'Service restart webhook URL'
+  healthcheck_url:
+    description: 'Post-deployment healthcheck URL'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Restart service
+      if: inputs.service_webhook_url
+      run: curl --silent --show-error --dump-header - --fail -X POST ${{ inputs.service_webhook_url }}
+      shell: bash
+
+    - name: Healthcheck
+      if: inputs.healthcheck_url
+      run: |
+        sleep 30
+        # 8 retries exponentially backing off (finishing after 4:15 min)
+        curl --silent --show-error --dump-header - --fail --retry 8 --retry-all-errors -o /dev/null '${{ inputs.healthcheck_url }}'
+      shell: bash

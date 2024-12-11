@@ -24,7 +24,7 @@ inputs:
   build-args:
     description: 'Docker build arguments'
   service_webhook_url:
-    description: 'Portainer service webhook URL'
+    description: 'Service restart webhook URL'
   healthcheck_url:
     description: 'Post-deployment healthcheck URL'
   image_tag:
@@ -71,15 +71,8 @@ runs:
         cache-from: type=gha,scope=${{ inputs.image_name }}
         cache-to: type=gha,scope=${{ inputs.image_name }},mode=min
 
-    - name: Invoke deployment hook
-      if: inputs.service_webhook_url
-      run: curl --silent --show-error --dump-header - --fail -X POST ${{ inputs.service_webhook_url }}
-      shell: bash
-
-    - name: Healthcheck
-      if: inputs.healthcheck_url
-      run: |
-        sleep 30
-        # 8 retries exponentially backing off (finishing after 4:15 min)
-        curl --silent --show-error --dump-header - --fail --retry 8 --retry-all-errors -o /dev/null '${{ inputs.healthcheck_url }}'
-      shell: bash
+    - name: Post Deploy
+      uses: falcondev-it/.github/actions/docker-cd-post@master
+      with:
+        service_webhook_url: ${{ inputs.service_webhook_url }}
+        healthcheck_url: ${{ inputs.healthcheck_url }}
