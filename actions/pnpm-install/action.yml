@@ -6,6 +6,9 @@ inputs:
     description: 'Arguments to pass to pnpm install'
     required: false
     default: ''
+  ref:
+    description: 'Git ref to checkout'
+    required: false
 
 runs:
   using: composite
@@ -13,6 +16,7 @@ runs:
     - uses: actions/checkout@v4
       with:
         submodules: true
+        ref: ${{ inputs.ref }}
 
     - uses: pnpm/action-setup@v3
       with:
