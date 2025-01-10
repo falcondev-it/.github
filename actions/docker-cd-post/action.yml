@@ -6,6 +6,8 @@ inputs:
     description: 'Service restart webhook URL'
   healthcheck_url:
     description: 'Post-deployment healthcheck URL'
+  post_deploy_script:
+    description: 'Post-deployment Bash script to run'
 
 runs:
   using: 'composite'
@@ -21,4 +23,10 @@ runs:
         sleep 30
         # 8 retries exponentially backing off (finishing after 4:15 min)
         curl --silent --show-error --dump-header - --fail --retry 8 --retry-all-errors -o /dev/null '${{ inputs.healthcheck_url }}'
+      shell: bash
+
+    - name: Post Deploy Script
+      if: inputs.post_deploy_script
+      run: |
+        ${{ inputs.post_deploy_script }}
       shell: bash

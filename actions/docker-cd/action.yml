@@ -27,6 +27,8 @@ inputs:
     description: 'Service restart webhook URL'
   healthcheck_url:
     description: 'Post-deployment healthcheck URL'
+  post_deploy_script:
+    description: 'Post-deployment Bash script to run'
   image_tag:
     description: 'Allow to manually set the image tag instead of using the version.'
   skip_setup:
@@ -76,3 +78,4 @@ runs:
       with:
         service_webhook_url: ${{ inputs.service_webhook_url }}
         healthcheck_url: ${{ inputs.healthcheck_url }}
+        post_deploy_script: ${{ inputs.post_deploy_script }}
