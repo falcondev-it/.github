@@ -22,9 +22,14 @@ runs:
         ref: ${{ inputs.ref }}
         fetch-depth: ${{ inputs.fetch-depth }}
 
-    - uses: pnpm/action-setup@v3
+    - name: Get PNPM version from package.json
+      id: pnpm-version
+      shell: bash
+      run: echo "PNPM_VERSION=$(node -p 'require(`./package.json`).engines.pnpm')" >> $GITHUB_OUTPUT
+
+    - uses: pnpm/action-setup@v4
       with:
-        version: 9
+        version: ${{ steps.pnpm-version.outputs.PNPM_VERSION || '9' }}
 
     - uses: actions/setup-node@v4
       with:
