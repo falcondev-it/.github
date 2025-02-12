@@ -25,7 +25,7 @@ runs:
     - name: Get PNPM version from package.json
       id: pnpm-version
       shell: bash
-      run: echo "PNPM_VERSION=$(jq -r '.engines.pnpm' package.json)" >> $GITHUB_OUTPUT
+      run: echo "PNPM_VERSION=$(jq -r '.engines.pnpm // ""' package.json)" >> $GITHUB_OUTPUT
 
     - uses: pnpm/action-setup@v4
       with:
