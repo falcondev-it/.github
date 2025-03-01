@@ -12,6 +12,9 @@ inputs:
   fetch-depth:
     description: 'Number of commits to fetch. 0 indicates all history for all branches and tags.'
     required: false
+  registry-url:
+    description: 'Optional registry to set up for auth.'
+    required: false
 
 runs:
   using: composite
@@ -35,6 +38,7 @@ runs:
       with:
         node-version-file: 'package.json'
         cache: pnpm
+        registry-url: ${{ inputs.registry-url }}
 
     - run: pnpm install --frozen-lockfile ${{ inputs.install-args }}
       shell: bash
