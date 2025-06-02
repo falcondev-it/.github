@@ -58,11 +58,11 @@ runs:
       with:
         images: ${{ inputs.registry_url }}/${{ inputs.image_name }}
         tags: |
-          ${{ inputs.image_tag && format('type=raw,value={0}', inputs.image_tag) || '' }}
-          ${{ inputs.version && format('type=semver,pattern={{version}},value={0}', inputs.version) || '' }}
-          ${{ inputs.version && format('type=semver,pattern={{major}}.{{minor}},value={0}', inputs.version) || '' }}
-          ${{ inputs.version && format('type=semver,pattern={{major}},value={0}', inputs.version) || '' }}
-          ${{ !inputs.image_tag && !inputs.version && 'type=raw,value=latest' || '' }}
+          type=raw,value=${{ inputs.image_tag }},enable=${{ !!inputs.image_tag }}
+          type=semver,pattern={{version}},value=${{ inputs.version }},enable=${{ !!inputs.version }}
+          type=semver,pattern={{major}}.{{minor}},value=${{ inputs.version }},enable=${{ !!inputs.version }}
+          type=semver,pattern={{major}},value=${{ inputs.version }},enable=${{ !!inputs.version }}
+          type=raw,value=latest
 
     - name: Build & Push Docker image
       uses: docker/build-push-action@v6
