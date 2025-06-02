@@ -57,7 +57,7 @@ runs:
       uses: docker/metadata-action@v5
       with:
         images: ${{ inputs.registry_url }}/${{ inputs.image_name }}
-        tags: ${{ inputs.image_tag || (inputs.version && format('latest\ntype=semver,pattern={{version}},value={0}\ntype=semver,pattern={{major}}.{{minor}},value={0}\ntype=semver,pattern={{major}},value={0}', inputs.version) || 'latest') }}
+        tags: ${{ inputs.image_tag || (inputs.version && format('type=semver,pattern={{version}},value={0}\ntype=semver,pattern={{major}}.{{minor}},value={0}\ntype=semver,pattern={{major}},value={0}', inputs.version) || 'latest') }}
 
     - name: Build & Push Docker image
       uses: docker/build-push-action@v6
