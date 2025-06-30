@@ -158,7 +158,7 @@ runs:
       run: |
         COMMIT_MESSAGE=$(git show -s --pretty=%s)
         COMMIT_HASH=$(git rev-parse --short HEAD)
-        eas build --platform ${{ inputs.platform }} --profile ${{ inputs.profile }} --non-interactive --local --no-wait --message "$COMMIT_MESSAGE ($COMMIT_HASH)"
+        eas build --platform ${{ inputs.platform }} --profile ${{ inputs.eas-profile }} --non-interactive --local --no-wait --message "$COMMIT_MESSAGE ($COMMIT_HASH)"
       working-directory: ${{ inputs.working-dir }}
       shell: bash
       env:
