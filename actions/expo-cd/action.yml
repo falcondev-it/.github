@@ -14,10 +14,9 @@ inputs:
   working-dir:
     description: 'Path of the expo project'
     required: true
-  dotenv-contents:
-    description: 'Contents of the .env file to use for the build'
-    required: false
-    default: ''
+  env:
+    description: 'Environment to deploy to (dev, staging, prod)'
+    required: true
 
 runs:
   using: 'composite'
@@ -46,7 +45,29 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-dir }}
       run: |
-        echo '${{ inputs.dotenv-contents }}' >> .env
+        COMMIT_SHA=$(git rev-parse --short HEAD)
+        LATEST_VERSION=$(git tag -l --sort=-v:refname --merged | grep -oE '^v[0-9]+.[0-9]+.[0-9]+' | head -1)
+        COMMITS_SINCE_RELEASE=$(git rev-list $LATEST_VERSION..HEAD --count)
+
+        if [[ "${{ inputs.env }}" == "dev" ]]; then
+          DEPLOY_VERSION="$LATEST_VERSION ($COMMITS_SINCE_RELEASE)  [$COMMIT_SHA]"
+        else
+          DEPLOY_VERSION="$LATEST_VERSION  [$COMMIT_SHA]"
+        fi
+
+        echo "VERSION=$LATEST_VERSION" >> $GITHUB_OUTPUT
+        echo "COMMIT_SHA=$COMMIT_SHA" >> $GITHUB_OUTPUT
+        echo "COMMITS_SINCE_RELEASE=$COMMITS_SINCE_RELEASE" >> $GITHUB_OUTPUT
+        echo "DEPLOY_VERSION=$DEPLOY_VERSION" >> $GITHUB_OUTPUT
+
+        echo "▶️ $DEPLOY_VERSION"
+
+        cat <<EOL >> .env
+        EXPO_PUBLIC_VERSION=$LATEST_VERSION
+        EXPO_PUBLIC_COMMIT_SHA=$COMMIT_SHA
+        EXPO_PUBLIC_COMMITS_SINCE_RELEASE=$COMMITS_SINCE_RELEASE
+        EXPO_PUBLIC_DEPLOY_VERSION=$DEPLOY_VERSION
+        EOL
 
         cat eas.json | jq -r --arg profile "${{ inputs.eas-profile }}" '
           .build.default.env as $default |
