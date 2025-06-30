@@ -17,6 +17,9 @@ inputs:
   env:
     description: 'Environment to deploy to (dev, staging, prod)'
     required: true
+  expo-token:
+    description: 'Expo token for authentication'
+    required: true
 
 runs:
   using: 'composite'
@@ -146,16 +149,10 @@ runs:
       uses: expo/expo-github-action@b184ff86a3c926240f1b6db41764c83a01c02eef
       with:
         eas-version: latest
-        token: ${{ secrets.EXPO_TOKEN }}
+        token: ${{ inputs.expo-token }}
         expo-cache: true
         eas-cache: true
         packager: pnpm
-
-    - name: Create app store connect key file
-      if: inputs.platform == 'ios'
-      run: echo '${{ secrets.EXPO_ASC_API_KEY }}' > app-store-connect-api-key.p8
-      working-directory: ${{ inputs.working-dir }}
-      shell: bash
 
     - name: EAS build
       run: |
