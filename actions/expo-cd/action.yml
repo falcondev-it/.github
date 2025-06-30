@@ -1,0 +1,166 @@
+name: 'Expo CD'
+description: 'Build and deploy Expo app on self hosted runner (linux for android, macos for ios).'
+
+inputs:
+  ref:
+    description: 'Git ref to checkout'
+    required: false
+  eas-profile:
+    description: 'EAS profile to use for the build'
+    required: true
+  platform:
+    description: 'Platform to build for (ios or android)'
+    required: true
+  working-dir:
+    description: 'Path of the expo project'
+    required: true
+  dotenv-contents:
+    description: 'Contents of the .env file to use for the build'
+    required: false
+    default: ''
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout (ios)
+      uses: actions/checkout@v4
+      if: inputs.platform == 'ios'
+      with:
+        submodules: true
+        ref: ${{ inputs.ref }}
+        fetch-depth: 0
+
+    - name: pnpm install (ios)
+      shell: bash
+      run: pnpm install --frozen-lockfile --ignore-scripts
+      if: inputs.platform == 'ios'
+
+    - name: pnpm install (android)
+      if: inputs.platform == 'android'
+      uses: falcondev-it/.github/actions/pnpm-install@master
+      with:
+        ref: ${{ inputs.ref }}
+        fetch-depth: 0
+
+    - name: Deploy info
+      shell: bash
+      working-directory: ${{ inputs.working-dir }}
+      run: |
+        echo '${{ inputs.dotenv-contents }}' >> .env
+
+        cat eas.json | jq -r --arg profile "${{ inputs.eas-profile }}" '
+          .build.default.env as $default |
+          .build[$profile].env as $profile |
+          ($default + ($profile // {})) |
+          to_entries | .[] | "\(.key)=\(.value)"
+        ' >> .env
+
+        cat .env >> $GITHUB_ENV
+
+    - name: Expo prebuild (android)
+      if: inputs.platform == 'android'
+      shell: bash
+      working-directory: ${{ inputs.working-dir }}
+      run: pnpm exec expo prebuild --platform android --no-install
+
+    - name: Setup Java (android)
+      uses: actions/setup-java@ebb356cc4e59bcf94f518203228485f5d40e4b58
+      if: inputs.platform == 'android'
+      with:
+        distribution: temurin
+        java-version: '21'
+        cache: gradle
+        cache-dependency-path: |
+          ${{ inputs.working-dir }}/android/**/*.gradle*
+          ${{ inputs.working-dir }}/android/**/gradle-wrapper.properties
+          ${{ inputs.working-dir }}/android/buildSrc/**/Versions.kt
+          ${{ inputs.working-dir }}/android/buildSrc/**/Dependencies.kt
+          ${{ inputs.working-dir }}/android/gradle/*.versions.toml
+          ${{ inputs.working-dir }}/android/**/versions.properties
+
+    - name: Set ANDROID_HOME and ANDROID_SDK_ROOT (android)
+      if: inputs.platform == 'android'
+      id: android-env
+      shell: bash
+      run: |
+        echo "ANDROID_HOME=$HOME/.android/sdk" >> $GITHUB_ENV
+        echo "ANDROID_SDK_ROOT=$HOME/.android/sdk" >> $GITHUB_ENV
+        echo "ANDROID_HOME=$HOME/.android/sdk" >> $GITHUB_OUTPUT
+        echo "ANDROID_SDK_ROOT=$HOME/.android/sdk" >> $GITHUB_OUTPUT
+
+    - name: Android SDK packages
+      id: android-sdk-packages
+      shell: bash
+      run: echo 'packages=platform-tools build-tools;35.0.0 platforms;android-35 build-tools;34.0.0 platforms;android-34' >> $GITHUB_OUTPUT
+
+    - name: Create Android SDK cache key (android)
+      if: inputs.platform == 'android'
+      run: echo '${{ steps.android-sdk-packages.outputs.packages }}' > android-sdk-packages.txt
+      shell: bash
+
+    - name: Cache Android SDK (android)
+      if: inputs.platform == 'android'
+      id: cache-android-sdk
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.android-env.outputs.ANDROID_HOME }}
+        key: ${{ runner.os }}-sdk-${{ hashFiles('android-sdk-packages.txt') }}
+
+    - name: Setup Android SDK (android)
+      if: inputs.platform == 'android' && steps.cache-android-sdk.outputs.cache-hit != 'true'
+      uses: android-actions/setup-android@v3
+      with:
+        packages: ${{ steps.android-sdk-packages.outputs.packages }}
+
+    - name: Setup Gradle (android)
+      uses: gradle/actions/setup-gradle@v4
+      if: inputs.platform == 'android'
+
+    - name: Generate random working dir
+      id: working-dir
+      run: echo "WORKING_DIR=$(mktemp -d)" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: Install EAS cli
+      uses: expo/expo-github-action@b184ff86a3c926240f1b6db41764c83a01c02eef
+      with:
+        eas-version: latest
+        token: ${{ secrets.EXPO_TOKEN }}
+        expo-cache: true
+        eas-cache: true
+        packager: pnpm
+
+    - name: Create app store connect key file
+      if: inputs.platform == 'ios'
+      run: echo '${{ secrets.EXPO_ASC_API_KEY }}' > app-store-connect-api-key.p8
+      working-directory: ${{ inputs.working-dir }}
+      shell: bash
+
+    - name: EAS build
+      run: |
+        COMMIT_MESSAGE=$(git show -s --pretty=%s)
+        COMMIT_HASH=$(git rev-parse --short HEAD)
+        eas build --platform ${{ inputs.platform }} --profile ${{ inputs.profile }} --non-interactive --local --no-wait --message "$COMMIT_MESSAGE ($COMMIT_HASH)"
+      working-directory: ${{ inputs.working-dir }}
+      shell: bash
+      env:
+        GRADLE_OPTS: -Dorg.gradle.daemon=false
+        EAS_LOCAL_BUILD_WORKINGDIR: ${{ steps.working-dir.outputs.WORKING_DIR}}
+
+    - name: Get app file path
+      id: get-file-path
+      shell: bash
+      working-directory: ${{ inputs.working-dir }}
+      run: |
+        path=$(find . -name "*.${{ inputs.platform == 'ios' && 'ipa' || 'aab'}}" -type f | head -1)
+        if [[ -z "$path" ]]; then
+          echo "Error: No output app file found"
+          exit 1
+        fi
+        echo "Found app file: $path"
+        echo "path=$path" >> $GITHUB_OUTPUT
+
+    - name: EAS submit
+      shell: bash
+      run: eas submit --platform ${{ inputs.platform }} --profile ${{ inputs.eas-profile }} --non-interactive --no-wait --path ${{ steps.get-file-path.outputs.path }}
+      working-directory: ${{ inputs.working-dir }}
