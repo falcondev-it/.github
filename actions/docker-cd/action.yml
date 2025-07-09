@@ -76,7 +76,7 @@ runs:
         file: ${{ inputs.dockerfile }}
         build-args: ${{ inputs.build-args }}
         cache-from: type=gha,scope=${{ inputs.image_name }}
-        cache-to: type=gha,mode=max,scope=${{ inputs.image_name }}
+        cache-to: type=gha,mode=min,scope=${{ inputs.image_name }}
 
     - name: Post Deploy
       uses: falcondev-it/.github/actions/docker-cd-post@master
