@@ -35,12 +35,6 @@ runs:
         ref: ${{ inputs.ref }}
         fetch-depth: 0
 
-    - name: Fake bump version
-      if: inputs.fake-bump == 'true'
-      shell: bash
-      working-directory: ${{ inputs.working-dir }}
-      run: npx bumpp --push=false patch
-
     - name: pnpm install (ios)
       shell: bash
       run: pnpm install --frozen-lockfile --ignore-scripts
@@ -52,6 +46,12 @@ runs:
       with:
         ref: ${{ inputs.ref }}
         fetch-depth: 0
+
+    - name: Fake bump version
+      if: inputs.fake-bump == 'true'
+      shell: bash
+      working-directory: ${{ inputs.working-dir }}
+      run: npx bumpp --push=false patch
 
     - name: Deploy info
       shell: bash
