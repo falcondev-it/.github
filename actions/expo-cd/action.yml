@@ -47,11 +47,19 @@ runs:
         ref: ${{ inputs.ref }}
         fetch-depth: 0
 
-    - name: Fake bump version
+    - name: Fake bump (update package.json)
       if: inputs.fake-bump == 'true'
       shell: bash
       working-directory: ${{ inputs.working-dir }}
-      run: npx bumpp --push=false patch
+      run: npx bumpp --push=false --tag=false --commit=false -y patch
+
+    - name: Fake bump (create git tag)
+      if: inputs.fake-bump == 'true'
+      shell: bash
+      working-directory: ${{ inputs.working-dir }}
+      run: |
+        VERSION=$(jq -r '.version' package.json)
+        git tag -a "v$VERSION" -m "v$VERSION"
 
     - name: Deploy info
       shell: bash
