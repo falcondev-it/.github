@@ -52,7 +52,7 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-dir }}
       run: |
-        pnpm dlx bumpp --push=false --no-tag --no-commit -y patch
+        pnpm dlx bumpp@latest --push=false --no-tag --no-commit -y patch
 
         git config user.name "github-actions[bot]"
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
