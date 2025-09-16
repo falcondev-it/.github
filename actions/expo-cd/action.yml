@@ -50,6 +50,7 @@ runs:
     - name: Install bumpp
       if: inputs.fake-bump == 'true'
       run: pnpm install -g bumpp
+      shell: bash
 
     - name: Fake bump
       if: inputs.fake-bump == 'true'
