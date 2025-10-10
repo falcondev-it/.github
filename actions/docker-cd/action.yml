@@ -7,7 +7,6 @@ inputs:
     required: true
   registry_url:
     description: 'Docker registry URL (DEPRECATED)'
-    required: true
     deprecationMessage: 'Use registry_host instead.'
   registry_host:
     description: 'Docker registry host'
@@ -37,7 +36,8 @@ inputs:
     description: 'Skip Docker setup'
     default: 'false'
   no_cache:
-    default: 'false' 
+    description: 'Skip Docker cache'
+    default: 'false'
 
 runs:
   using: 'composite'
