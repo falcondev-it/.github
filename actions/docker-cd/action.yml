@@ -45,7 +45,7 @@ runs:
     - name: Login to registry
       uses: docker/login-action@v3
       with:
-        registry: ${{ inputs.registry_url }}
+        registry: ${{ inputs.registry_host || inputs.registry_url }}
         username: ${{ inputs.registry_username }}
         password: ${{ inputs.registry_token }}
 
