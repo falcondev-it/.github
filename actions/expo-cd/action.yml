@@ -202,7 +202,6 @@ runs:
 
     - name: Upload app bundle
       uses: actions/upload-artifact@v4
-      working-directory: ${{ inputs.working-dir }}
       with:
         name: ${{ inputs.platform == 'android' && 'app.aab' || 'app.ipa' }}
-        path: ${{ steps.get-file-path.outputs.path }}
+        path: ${{ inputs.working-dir }}/${{ steps.get-file-path.outputs.path }}
