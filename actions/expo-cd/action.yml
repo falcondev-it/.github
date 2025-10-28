@@ -132,7 +132,7 @@ runs:
     - name: Android SDK packages
       id: android-sdk-packages
       shell: bash
-      run: echo 'packages=platform-tools build-tools;35.0.0 platforms;android-35 build-tools;34.0.0 platforms;android-34' >> $GITHUB_OUTPUT
+      run: echo 'packages=platform-tools build-tools;35.0.0 platforms;android-35 build-tools;36.0.0 platforms;android-36' >> $GITHUB_OUTPUT
 
     - name: Create Android SDK cache key (android)
       if: inputs.platform == 'android'
