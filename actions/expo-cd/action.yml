@@ -187,11 +187,14 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-dir }}
       run: |
+        set -euo pipefail
         path=$(find . -name "*.${{ inputs.platform == 'ios' && 'ipa' || 'aab'}}" -type f | head -1)
         if [[ -z "$path" ]]; then
           echo "Error: No output app file found"
           exit 1
         fi
+        # remove leading "./"
+        path="${path#./}"
         echo "Found app file: $path"
         echo "path=$path" >> $GITHUB_OUTPUT
 
