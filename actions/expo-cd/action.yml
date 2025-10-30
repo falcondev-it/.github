@@ -180,7 +180,7 @@ runs:
       working-directory: ${{ inputs.working-dir }}
       shell: bash
       env:
-        GRADLE_OPTS: -Dorg.gradle.daemon=false
+        GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs=-Xmx32g -Dorg.gradle.parallel=true
         EAS_LOCAL_BUILD_WORKINGDIR: ${{ steps.working-dir.outputs.WORKING_DIR}}
 
     - name: Get app file path
