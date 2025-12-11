@@ -209,3 +209,4 @@ runs:
       with:
         name: ${{ steps.get-file-path.outputs.path }}
         path: ${{ inputs.working-dir }}/${{ steps.get-file-path.outputs.path }}
+        retention-days: 1
