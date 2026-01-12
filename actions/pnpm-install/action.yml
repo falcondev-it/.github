@@ -15,9 +15,6 @@ inputs:
   registry-url:
     description: 'Optional registry to set up for auth.'
     required: false
-  working-directory:
-    required: false
-    default: '.'
 
 runs:
   using: composite
@@ -32,27 +29,22 @@ runs:
       id: pnpm-version
       shell: bash
       run: echo "PNPM_VERSION=$(jq -r '.packageManager // .engines.pnpm // ""' package.json)" >> $GITHUB_OUTPUT
-      working-directory: ${{ inputs.working-directory }}
 
     - name: Install pnpm with custom version
       uses: pnpm/action-setup@v4
       if: ${{ !startsWith(steps.pnpm-version.outputs.PNPM_VERSION, 'pnpm@') }}
       with:
         version: ${{ steps.pnpm-version.outputs.PNPM_VERSION || '10' }}
-        cache_dependency_path: ${{ inputs.working-directory }}/pnpm-lock.yaml
         
     - name: Install pnpm with version from `packageManager`
       uses: pnpm/action-setup@v4
       if: ${{ startsWith(steps.pnpm-version.outputs.PNPM_VERSION, 'pnpm@') }}
-      with:
-        cache_dependency_path: ${{ inputs.working-directory }}/pnpm-lock.yaml
 
     - uses: actions/setup-node@v4
       with:
-        node-version-file: '${{ inputs.working-directory }}/package.json'
+        node-version-file: 'package.json'
         cache: pnpm
         registry-url: ${{ inputs.registry-url }}
 
     - run: pnpm install --frozen-lockfile ${{ inputs.install-args }}
       shell: bash
-      working-directory: ${{ inputs.working-directory }}
