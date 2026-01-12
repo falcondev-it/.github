@@ -39,14 +39,17 @@ runs:
       if: ${{ !startsWith(steps.pnpm-version.outputs.PNPM_VERSION, 'pnpm@') }}
       with:
         version: ${{ steps.pnpm-version.outputs.PNPM_VERSION || '10' }}
+        cache_dependency_path: ${{ inputs.working-directory }}/pnpm-lock.yaml
         
     - name: Install pnpm with version from `packageManager`
       uses: pnpm/action-setup@v4
       if: ${{ startsWith(steps.pnpm-version.outputs.PNPM_VERSION, 'pnpm@') }}
+      with:
+        cache_dependency_path: ${{ inputs.working-directory }}/pnpm-lock.yaml
 
     - uses: actions/setup-node@v4
       with:
-        node-version-file: 'package.json'
+        node-version-file: '${{ inputs.working-directory }}/package.json'
         cache: pnpm
         registry-url: ${{ inputs.registry-url }}
 
