@@ -203,10 +203,3 @@ runs:
       shell: bash
       run: eas submit --platform ${{ inputs.platform }} --profile ${{ inputs.eas-profile }} --non-interactive --no-wait --path ${{ steps.get-file-path.outputs.path }}
       working-directory: ${{ inputs.working-dir }}
-
-    - name: Upload app bundle
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ steps.get-file-path.outputs.path }}
-        path: ${{ inputs.working-dir }}/${{ steps.get-file-path.outputs.path }}
-        retention-days: 1
