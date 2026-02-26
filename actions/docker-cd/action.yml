@@ -82,7 +82,7 @@ runs:
         file: ${{ inputs.dockerfile }}
         build-args: ${{ inputs.build-args }}
         cache-from: type=gha,scope=${{ inputs.image_name }}
-        cache-to: type=gha,mode=min,scope=${{ inputs.image_name }}
+        cache-to: type=gha,mode=max,scope=${{ inputs.image_name }}
         no-cache: ${{ inputs.no_cache }}
 
     - name: Post Deploy
