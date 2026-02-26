@@ -52,11 +52,8 @@ runs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
       with:
-        buildkitd-config-inline: |
-          [registry."docker.io"]
-            mirrors = ["registry-docker-registry.default.svc.cluster.local:5000"]
-          [registry."registry-docker-registry.default.svc.cluster.local:5000"]
-            http = true
+        driver: remote
+        endpoint: tcp://buildkit.arc-system.svc.cluster.local:1234
 
     - name: Extract metadata (tags, labels) for Docker
       id: meta
@@ -81,8 +78,8 @@ runs:
         context: ${{ inputs.context || '.' }}
         file: ${{ inputs.dockerfile }}
         build-args: ${{ inputs.build-args }}
-        cache-from: type=gha,scope=${{ inputs.image_name }}
-        cache-to: type=gha,mode=max,scope=${{ inputs.image_name }}
+        cache-from: type=registry,ref=registry-docker-registry.default.svc.cluster.local:5000/${{ inputs.image_name }}:buildcache
+        cache-to: type=registry,ref=registry-docker-registry.default.svc.cluster.local:5000/${{ inputs.image_name }}:buildcache,mode=max
         no-cache: ${{ inputs.no_cache }}
 
     - name: Post Deploy
