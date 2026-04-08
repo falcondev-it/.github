@@ -28,7 +28,7 @@ runs:
   using: 'composite'
   steps:
     - name: Checkout (ios)
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       if: inputs.platform == 'ios'
       with:
         submodules: true
@@ -142,19 +142,19 @@ runs:
     - name: Cache Android SDK (android)
       if: inputs.platform == 'android'
       id: cache-android-sdk
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: ${{ steps.android-env.outputs.ANDROID_HOME }}
         key: ${{ runner.os }}-sdk-${{ hashFiles('android-sdk-packages.txt') }}
 
     - name: Setup Android SDK (android)
       if: inputs.platform == 'android' && steps.cache-android-sdk.outputs.cache-hit != 'true'
-      uses: android-actions/setup-android@v3
+      uses: android-actions/setup-android@v4
       with:
         packages: ${{ steps.android-sdk-packages.outputs.packages }}
 
     - name: Setup Gradle (android)
-      uses: gradle/actions/setup-gradle@v4
+      uses: gradle/actions/setup-gradle@v6
       if: inputs.platform == 'android'
 
     - name: Generate random working dir
