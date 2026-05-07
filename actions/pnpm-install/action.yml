@@ -31,7 +31,7 @@ runs:
       run: echo "PNPM_VERSION=$(jq -r '.packageManager // .engines.pnpm // ""' package.json)" >> $GITHUB_OUTPUT
 
     - name: Install pnpm with custom version
-      uses: pnpm/action-setup@v5
+      uses: pnpm/action-setup@v6
       if: ${{ !startsWith(steps.pnpm-version.outputs.PNPM_VERSION, 'pnpm@') }}
       with:
         version: ${{ steps.pnpm-version.outputs.PNPM_VERSION || '10' }}
