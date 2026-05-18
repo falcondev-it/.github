@@ -163,7 +163,7 @@ runs:
       shell: bash
 
     - name: Install EAS cli
-      uses: expo/expo-github-action@8
+      uses: expo/expo-github-action@v8
       with:
         eas-version: latest
         token: ${{ inputs.expo-token }}
