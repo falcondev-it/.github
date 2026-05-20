@@ -163,13 +163,8 @@ runs:
       shell: bash
 
     - name: Install EAS cli
-      uses: expo/expo-github-action@v8
-      with:
-        eas-version: latest
-        token: ${{ inputs.expo-token }}
-        expo-cache: true
-        eas-cache: true
-        packager: pnpm
+      run: pnpm add -g eas-cli@latest
+      shell: bash
 
     - name: EAS build
       run: |
@@ -182,6 +177,7 @@ runs:
       env:
         GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs=-Xmx32g -Dorg.gradle.parallel=true
         EAS_LOCAL_BUILD_WORKINGDIR: ${{ steps.working-dir.outputs.WORKING_DIR}}
+        EXPO_TOKEN: ${{ inputs.expo-token }}
 
     - name: Get app file path
       id: get-file-path
@@ -203,3 +199,5 @@ runs:
       shell: bash
       run: eas submit --platform ${{ inputs.platform }} --profile ${{ inputs.eas-profile }} --non-interactive --no-wait --path ${{ steps.get-file-path.outputs.path }}
       working-directory: ${{ inputs.working-dir }}
+      env:
+        EXPO_TOKEN: ${{ inputs.expo-token }}
