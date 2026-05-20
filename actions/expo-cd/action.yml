@@ -163,7 +163,7 @@ runs:
       shell: bash
 
     - name: Install EAS cli
-      run: pnpm add -g eas-cli@latest
+      run: npm install -g eas-cli@latest
       shell: bash
 
     - name: EAS build
