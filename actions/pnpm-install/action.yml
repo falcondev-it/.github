@@ -27,7 +27,7 @@ runs:
         submodules: true
         ref: ${{ inputs.ref }}
         fetch-depth: ${{ inputs.fetch-depth }}
-        token: ${{ inputs.token }}
+        token: ${{ inputs.token || github.token }}
 
     - name: Get PNPM version from package.json
       id: pnpm-version
