@@ -15,6 +15,9 @@ inputs:
   registry-url:
     description: 'Optional registry to set up for auth.'
     required: false
+  token:
+    description: 'GitHub Token (PAT) used in checkout'
+    required: false
 
 runs:
   using: composite
@@ -24,6 +27,7 @@ runs:
         submodules: true
         ref: ${{ inputs.ref }}
         fetch-depth: ${{ inputs.fetch-depth }}
+        token: ${{ inputs.token }}
 
     - name: Get PNPM version from package.json
       id: pnpm-version
