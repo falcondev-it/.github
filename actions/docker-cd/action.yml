@@ -31,7 +31,7 @@ inputs:
   healthcheck_url:
     description: 'Post-deployment healthcheck URL'
   image_tag:
-    description: 'Allow to manually set the image tag instead of using the version.'
+    description: 'Set a custom image tag'
   skip_setup:
     description: 'Skip Docker setup'
     default: 'false'
@@ -43,7 +43,7 @@ runs:
   using: 'composite'
   steps:
     - name: Login to registry
-      uses: docker/login-action@v3
+      uses: docker/login-action@v4
       with:
         registry: ${{ inputs.registry_host || inputs.registry_url }}
         username: ${{ inputs.registry_username }}
