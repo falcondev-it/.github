@@ -40,5 +40,11 @@ runs:
       with:
         cache: true
 
+    # pnpm records lockfiles that passed its supply-chain checks here, so an unchanged lockfile skips re-checking every entry
+    - uses: actions/cache@v6
+      with:
+        path: ${{ env.XDG_CACHE_HOME || '~/.cache' }}/pnpm/lockfile-verified.jsonl
+        key: pnpm-lockfile-verified-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
     - run: pnpm install ${{ inputs.install-args }}
       shell: bash
