@@ -12,6 +12,9 @@ inputs:
   fetch-depth:
     description: 'Number of commits to fetch. 0 indicates all history for all branches and tags.'
     required: false
+  filter:
+    description: 'Partially clone against a given filter, e.g. tree:0 to fetch the full history without old trees and files.'
+    required: false
   registry-url:
     description: 'Optional registry to set up for auth.'
     required: false
@@ -27,6 +30,7 @@ runs:
         submodules: true
         ref: ${{ inputs.ref }}
         fetch-depth: ${{ inputs.fetch-depth }}
+        filter: ${{ inputs.filter }}
         token: ${{ inputs.token || github.token }}
 
     - name: Install Node.js
