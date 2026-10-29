@@ -39,10 +39,17 @@ runs:
         node-version-file: 'package.json'
         registry-url: ${{ inputs.registry-url }}
 
+    # runners with a shared pnpm store on the node (PNPM_CONFIG_STORE_DIR) don't need the store cache,
+    # restoring it would extract a tarball into the store other jobs are installing from
+    - name: Check for shared pnpm store
+      id: store
+      shell: bash
+      run: echo "shared=${PNPM_CONFIG_STORE_DIR:+true}" >> "$GITHUB_OUTPUT"
+
     - name: Install pnpm
       uses: pnpm/action-setup@v6
       with:
-        cache: true
+        cache: ${{ steps.store.outputs.shared != 'true' }}
 
     # pnpm records lockfiles that passed its supply-chain checks here, so an unchanged lockfile skips re-checking every entry
     - uses: actions/cache@v6
